@@ -1,0 +1,141 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+
+<body>
+    <div class="main-center">
+        <div>
+            <div class="inset-div">
+                <h2>Host Track Session</h2>
+                <button onclick="Host()" class="button-name" role="button">Host</button>
+            </div>
+            <h3>or</h3>
+            <div class="inset-div">
+                <h2>Join Track Session</h2>
+                <form id="searchForm" onsubmit="redirectToLink(event)">
+                    <input type="text" id="userInput" placeholder="Join Code..." class="button-name"></input>
+                    <button type="submit" class="button-name" role="button">Join</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <footer>Made With <3 from Ontario </footer>
+</body>
+
+<style>
+ div {
+  display: grid;
+  place-items: center; 
+}
+footer {
+    text-align: center;
+    padding: 1rem;
+}
+.main-center {
+    margin: 0;
+    min-height: 93vh;
+
+    display: flex;
+    justify-content: center; /* horizontal */
+    align-items: center;     /* vertical */
+}
+
+h2, h3, button, input{
+    font-family: "Inconsolata", monospace;
+    font-size: 200%;
+}
+
+.inconsolata-<uniquifier> {
+  font-family: "Inconsolata", monospace;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.inset-div{
+    border: 5px solid black;
+    border-radius: 15px;
+    padding: 10px;
+}
+
+/* From Uiverse.io by TCdesign-dev */ 
+.button-name {
+  align-items: center;
+  appearance: none;
+  background-color: #fcfcfd;
+  border-radius: 4px;
+  border-width: 0;
+  box-shadow:
+    rgba(45, 35, 66, 0.2) 0 2px 4px,
+    rgba(45, 35, 66, 0.15) 0 7px 13px -3px,
+    #d6d6e7 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #36395a;
+  cursor: pointer;
+  display: inline-flex;
+  height: 48px;
+  justify-content: center;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  will-change: box-shadow, transform;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.button-name:focus {
+  box-shadow:
+    #d6d6e7 0 0 0 1.5px inset,
+    rgba(45, 35, 66, 0.4) 0 2px 4px,
+    rgba(45, 35, 66, 0.3) 0 7px 13px -3px,
+    #d6d6e7 0 -3px 0 inset;
+}
+
+.button-name:hover {
+  box-shadow:
+    rgba(45, 35, 66, 0.3) 0 4px 8px,
+    rgba(45, 35, 66, 0.2) 0 7px 13px -3px,
+    #d6d6e7 0 -3px 0 inset;
+  transform: translateY(-2px);
+}
+
+.button-name:active {
+  box-shadow: #d6d6e7 0 3px 7px inset;
+  transform: translateY(2px);
+}
+
+</style>
+
+<script>
+function redirectToLink(event) {
+  event.preventDefault(); // Stop the form from submitting normally
+  
+  // Get the input value
+  const inputValue = document.getElementById('userInput').value;
+  
+  // Create the URL with the parameter
+  const targetUrl = "/join.html?id=" + inputValue;
+  
+  // Redirect the user
+  window.location.href = targetUrl;
+}
+function Host() {
+    code = Math.random().toString(36).substring(2, 8).padEnd(6, '0');
+    const targetUrl = "/host.html?id=" + code;
+    window.location.href = targetUrl;
+}
+</script>
