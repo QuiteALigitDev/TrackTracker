@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
 import { 
-  getFirestore, doc, setDoc, getDoc, collection, addDoc , onSnapshot, updateDoc, increment
+  getFirestore, doc, setDoc, getDoc, collection, addDoc , onSnapshot, updateDoc, increment, deleteField
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 
 
@@ -17,6 +17,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const code = new URLSearchParams(window.location.search).get('id');
+
+var ConnectedClients = 0;
 
 const container = document.getElementById('Lanes');
 
@@ -40,15 +42,14 @@ async function StartClock() {
 async function KickLane(lane){
     const dictionaryRef = doc(db, "dictionaries", code);
     await updateDoc(dictionaryRef, {
-        HostPipe: 1 + lane,
-        ConnectedClients: increment(-1)
+        HostPipe: "1" + lane,
+        ConnectedClients: increment(-1),
+        [ConnectedClients - 1]: deleteField()
     }); 
     await delay(500)
     await updateDoc(dictionaryRef, {
         HostPipe: 0
     }); 
-    const element = document.getElementById(`lane${lane}`);
-    element.remove();
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -63,7 +64,8 @@ onSnapshot(doc(db, "dictionaries", code), (docSnap) =>{
         container.innerHTML = "";
         const labeDiv = document.createElement('div');
         labeDiv.className = 'lightLabel';
-
+        
+        ConnectedClients = docSnap.data()['ConnectedClients'];
 
         if (Object.keys(docSnap.data()).length == 2){
             labeDiv.innerHTML = "No Lanes Currently...";

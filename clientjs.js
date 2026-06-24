@@ -44,14 +44,20 @@ onSnapshot(doc(db, "dictionaries", code.get("id")), (docSnap) =>{
         console.log("Document Updated.");
         var pipeCode = docSnap.data()['HostPipe'];
 
-        if (pipeCode == '1' + LaneNum){
-            window.location.href = "index.html";
+        if (String(pipeCode).startsWith('1')){
+            var lane = LaneNum;
+            LaneNum -= 1;
+            if (pipeCode == '1' + lane){
+                window.location.href = "index.html";
+                return;
+            }
+            updateTimes(curTime, 500);
         }
         else if (pipeCode != '0'){
             isTiming = true;
             timerToggle.innerHTML = "Stop";
             StartTime = pipeCode;
-            updateTimes("Running...");
+            updateTimes("Running...", 0);
         }
     }
 });
@@ -71,15 +77,16 @@ function ToggleClock(){
     if (isTiming){
         timerToggle.innerHTML = "Stop";
         StartTime = Date.now();
-        updateTimes("Running...");
+        updateTimes("Running...", 0);
     }
     else{
         timerToggle.innerHTML = "Start";
-        updateTimes(curTime);
+        updateTimes(curTime, 0);
     }
 }
 
-async function updateTimes(time) {
+async function updateTimes(time, awaittime) {
+    await awaittime
     const dictionaryRef = doc(db, "dictionaries", code.get('id'));
     await updateDoc(dictionaryRef, {
         [LaneNum]: time
