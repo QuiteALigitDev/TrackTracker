@@ -1,0 +1,6 @@
+API_KEY="AIzaSyBAGgcQFYhWWH9368q5UNUJyRYy5VTcYu4"
+AUTH_DOMAIN="yrsdbtracktracker.firebaseapp.com"
+PROJECT_ID="yrsdbtracktracker"
+STORAGE_BUCK="yrsdbtracktracker.appspot.com"
+MESSAGE_SEND_ID="777919976392"
+APP_ID="1:777919976392:web:bab40a76ac13e3978d26fd"

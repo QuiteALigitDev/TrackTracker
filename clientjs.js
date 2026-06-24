@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
 import { 
-  getFirestore, doc, setDoc, getDoc, collection, updateDoc, increment
+  getFirestore, doc, setDoc, getDoc, collection, updateDoc, increment, onSnapshot
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 
 
@@ -18,21 +18,42 @@ const db = getFirestore(app);
 
 var isTiming = false;
 var StartTime = Date.now();
-var LaneNum = 0;
+var LaneNum = 9999;
 var curTime = 0; 
+const code = new URLSearchParams(window.location.search);
+
 
 document.addEventListener("DOMContentLoaded", function() {
     addTimes();
 });
 
-document.getElementById ("ToggleClock").addEventListener ("click", ToggleClock, false);
+var timerToggle = document.getElementById ("ToggleClock");
+timerToggle.addEventListener ("click", ToggleClock, false);
+
 setInterval(function myFunction(){
     if (isTiming){
     curTime = Date.now() - StartTime;
     }
     
     document.getElementById("Time").textContent = formatElapsedTime(curTime);
-}, 0);
+}, 50);
+
+onSnapshot(doc(db, "dictionaries", code.get("id")), (docSnap) =>{
+    if (docSnap.exists()){
+        console.log("Document Updated.");
+        var pipeCode = docSnap.data()['HostPipe'];
+
+        if (pipeCode == '1' + LaneNum){
+            window.location.href = "index.html";
+        }
+        else if (pipeCode != '0'){
+            isTiming = true;
+            timerToggle.innerHTML = "Stop";
+            StartTime = pipeCode;
+            updateTimes("Running...");
+        }
+    }
+});
 
 function formatElapsedTime(ms) {
     const minutes = Math.floor(ms / 60000);
@@ -47,28 +68,25 @@ function ToggleClock(){
     isTiming = !isTiming;
 
     if (isTiming){
-        console.log("Timing..");
+        timerToggle.innerHTML = "Stop";
         StartTime = Date.now();
         updateTimes("Running...");
     }
     else{
+        timerToggle.innerHTML = "Start";
         updateTimes(curTime);
-        console.log(curTime);
     }
 }
 
 async function updateTimes(time) {
-    const code = new URLSearchParams(window.location.search);
     const dictionaryRef = doc(db, "dictionaries", code.get('id'));
     await updateDoc(dictionaryRef, {
         [LaneNum]: time
     }); 
-    console.log(`Joined "${code.get('id')}"!`);
 }
 
 
 async function addTimes() {
-    const code = new URLSearchParams(window.location.search);
     const dictionaryRef = doc(db, "dictionaries", code.get('id'));
     const docSnap = await getDoc(
         doc(db, "dictionaries", code.get("id"))

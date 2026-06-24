@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
 import { 
-  getFirestore, doc, setDoc, getDoc, collection, addDoc 
+  getFirestore, doc, setDoc, getDoc, collection, addDoc , onSnapshot, updateDoc, increment
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 
 
@@ -18,10 +18,79 @@ const db = getFirestore(app);
 
 const code = new URLSearchParams(window.location.search).get('id');
 
+const container = document.getElementById('Lanes');
+
 document.getElementById("codeVis").textContent = "Code:" + code;
+
+document.getElementById ("TimerStart").addEventListener("click", StartClock, false);
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function StartClock() {
+    const dictionaryRef = doc(db, "dictionaries", code);
+    await updateDoc(dictionaryRef, {
+        HostPipe: Date.now()
+    }); 
+    await delay(500)
+    await updateDoc(dictionaryRef, {
+        HostPipe: 0
+    }); 
+}
+
+async function KickLane(lane){
+    const dictionaryRef = doc(db, "dictionaries", code);
+    await updateDoc(dictionaryRef, {
+        HostPipe: 1 + lane,
+        ConnectedClients: increment(-1)
+    }); 
+    await delay(500)
+    await updateDoc(dictionaryRef, {
+        HostPipe: 0
+    }); 
+    const element = document.getElementById(`lane${lane}`);
+    element.remove();
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     createDictionary(code);
+});
+
+onSnapshot(doc(db, "dictionaries", code), (docSnap) =>{
+    if (docSnap.exists()){
+        console.log("Document Updated.");
+        console.log(docSnap.data())
+
+        container.innerHTML = "";
+        const widgetDiv = document.createElement('div');
+        widgetDiv.className = 'lightLabel';
+
+
+        if (Object.keys(docSnap.data()).length == 2){
+            widgetDiv.innerHTML = "No Lanes Currently...";
+            container.appendChild(widgetDiv);
+            return;
+        }
+
+        Object.keys(docSnap.data()).forEach(key => {
+            const config = docSnap.data()[key];
+            
+            if (key == "ConnectedClients"){return;}
+            if (key == "HostPipe"){return;}
+
+            widgetDiv.innerHTML = `
+                <div class="Lane" id="lane${key}">
+                    <button class="button-name" id="kick${key}"><i class="fa-solid fa-ban"></i></button>
+                    <h2>Lane ${key}</h2>
+                    <h2>${formatElapsedTime(config)}</h2>
+                </div>
+            `;
+            container.appendChild(widgetDiv);
+            document.getElementById(`kick${key}`).addEventListener("click", () => {
+                KickLane(key);
+            });
+
+        });
+    }
 });
 
 function formatElapsedTime(ms) {
@@ -36,7 +105,8 @@ function formatElapsedTime(ms) {
 async function createDictionary(code) {
     const dictionaryRef = doc(db, "dictionaries", code);
     await setDoc(dictionaryRef, {
-        ConnectedClients: 0
+        ConnectedClients: 0,
+        HostPipe: 0
     }); 
     console.log(`Dictionary "${code}"!`);
 }
