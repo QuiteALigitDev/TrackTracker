@@ -61,34 +61,33 @@ onSnapshot(doc(db, "dictionaries", code), (docSnap) =>{
         console.log(docSnap.data())
 
         container.innerHTML = "";
-        const widgetDiv = document.createElement('div');
-        widgetDiv.className = 'lightLabel';
+        const labeDiv = document.createElement('div');
+        labeDiv.className = 'lightLabel';
 
 
         if (Object.keys(docSnap.data()).length == 2){
-            widgetDiv.innerHTML = "No Lanes Currently...";
-            container.appendChild(widgetDiv);
+            labeDiv.innerHTML = "No Lanes Currently...";
+            container.appendChild(labeDiv);
             return;
         }
 
         Object.keys(docSnap.data()).forEach(key => {
             const config = docSnap.data()[key];
-            
-            if (key == "ConnectedClients"){return;}
-            if (key == "HostPipe"){return;}
+            if (key == "ConnectedClients" || key == "HostPipe") return;
 
+            const widgetDiv = document.createElement('div'); // move inside loop
+            widgetDiv.className = 'Lane';
             widgetDiv.innerHTML = `
                 <div class="Lane" id="lane${key}">
                     <button class="button-name" id="kick${key}"><i class="fa-solid fa-ban"></i></button>
                     <h2>Lane ${key}</h2>
-                    <h2>${formatElapsedTime(config)}</h2>
+                    <h2>${config === "Running..." ? "Running..." : formatElapsedTime(config)}</h2>
                 </div>
             `;
             container.appendChild(widgetDiv);
             document.getElementById(`kick${key}`).addEventListener("click", () => {
                 KickLane(key);
             });
-
         });
     }
 });

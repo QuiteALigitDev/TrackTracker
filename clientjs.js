@@ -15,7 +15,7 @@ appId: "1:777919976392:web:bab40a76ac13e3978d26fd"
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+let laneReady = false;
 var isTiming = false;
 var StartTime = Date.now();
 var LaneNum = 9999;
@@ -39,6 +39,7 @@ setInterval(function myFunction(){
 }, 50);
 
 onSnapshot(doc(db, "dictionaries", code.get("id")), (docSnap) =>{
+    if (!laneReady) return;
     if (docSnap.exists()){
         console.log("Document Updated.");
         var pipeCode = docSnap.data()['HostPipe'];
@@ -99,4 +100,5 @@ async function addTimes() {
         ConnectedClients: increment(1)
     }); 
     console.log(`Joined "${code.get('id')}", Current Lane Num Is ${LaneNum}!`);
+    laneReady = true;
 }
