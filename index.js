@@ -46,6 +46,6 @@ async function Transfer(targetUrl, input) {
 
 window.Host = function() {
     var code = Math.random().toString(36).substring(2, 8).padEnd(6, '0');
-    const targetUrl = "host.html?id=" + code;
+    const targetUrl = "TrackTracker/host.html?id=" + code;
     window.location.href = targetUrl;
 }
