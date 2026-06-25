@@ -24,7 +24,7 @@ window.redirectToLink = function(event) {
   const inputValue = document.getElementById('userInput').value;
   
   // Create the URL with the parameter
-  const targetUrl = "TrackTracker/join.html?id=" + inputValue;
+  const targetUrl = "/TrackTracker/join.html?id=" + inputValue;
 
   Transfer(targetUrl, inputValue);
 }
