@@ -24,7 +24,7 @@ window.redirectToLink = function(event) {
   const inputValue = document.getElementById('userInput').value;
   
   // Create the URL with the parameter
-  const targetUrl = "/TrackTracker/join.html?id=" + inputValue;
+  const targetUrl = "join.html?id=" + inputValue;
 
   Transfer(targetUrl, inputValue);
 }
@@ -46,6 +46,6 @@ async function Transfer(targetUrl, input) {
 
 window.Host = function() {
     var code = Math.random().toString(36).substring(2, 8).padEnd(6, '0');
-    const targetUrl = "TrackTracker/host.html?id=" + code;
+    const targetUrl = "host.html?id=" + code;
     window.location.href = targetUrl;
 }
