@@ -46,7 +46,7 @@ onSnapshot(doc(db, "dictionaries", code.get("id")), (docSnap) =>{
 
         if (pipeCode === "KICK_" + LaneNum){
             LaneNum -= 1;
-            window.location.href = "index.html";
+            window.location.href = "/TrackTracker";
             return;
         }
         else if (pipeCode != '0'){
