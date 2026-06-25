@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
 import { 
-  getFirestore, doc, setDoc, getDoc, collection, addDoc , onSnapshot, updateDoc, increment, deleteField
+  getFirestore, doc, setDoc, getDoc, collection, addDoc , onSnapshot, updateDoc, increment, deleteField, runTransaction, Timestamp
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 
 
@@ -17,8 +17,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const code = new URLSearchParams(window.location.search).get('id');
-
-var ConnectedClients = 0;
 
 const container = document.getElementById('Lanes');
 
@@ -41,10 +39,18 @@ async function StartClock() {
 
 async function KickLane(lane){
     const dictionaryRef = doc(db, "dictionaries", code);
+
+    await runTransaction(db, async (transaction) => {
+        const docSnap = await transaction.get(dictionaryRef);
+        const current = docSnap.data().ConnectedClients;
+        transaction.update(dictionaryRef, {
+            ConnectedClients: Math.max(0, current - 1)
+        });
+    });
+
     await updateDoc(dictionaryRef, {
-        HostPipe: "1" + lane,
-        ConnectedClients: increment(-1),
-        [ConnectedClients - 1]: deleteField()
+        HostPipe: "KICK_" + String(lane),
+        [lane]: deleteField()
     }); 
     await delay(500)
     await updateDoc(dictionaryRef, {
@@ -64,8 +70,7 @@ onSnapshot(doc(db, "dictionaries", code), (docSnap) =>{
         container.innerHTML = "";
         const labeDiv = document.createElement('div');
         labeDiv.className = 'lightLabel';
-        
-        ConnectedClients = docSnap.data()['ConnectedClients'];
+
 
         if (Object.keys(docSnap.data()).length == 2){
             labeDiv.innerHTML = "No Lanes Currently...";
@@ -73,8 +78,23 @@ onSnapshot(doc(db, "dictionaries", code), (docSnap) =>{
             return;
         }
 
-        Object.keys(docSnap.data()).forEach(key => {
-            const config = docSnap.data()[key];
+        const data = docSnap.data();
+        
+        const lanes = Object.keys(data)
+            .filter(key => key !== "ConnectedClients" && key !== "HostPipe")
+            .map((key, index) => ({
+                key,
+                config: data[key],
+                index
+            }))
+            .sort((a, b) => {
+                const aTime = a.config === "Running..." ? Infinity : a.config;
+                const bTime = b.config === "Running..." ? Infinity : b.config;
+
+                return aTime - bTime; // fastest first
+            });
+
+        lanes.forEach(({ key, config, index} ) => {
             if (key == "ConnectedClients" || key == "HostPipe") return;
 
             const widgetDiv = document.createElement('div'); // move inside loop
@@ -82,7 +102,7 @@ onSnapshot(doc(db, "dictionaries", code), (docSnap) =>{
             widgetDiv.innerHTML = `
                 <div class="Lane" id="lane${key}">
                     <button class="button-name" id="kick${key}"><i class="fa-solid fa-ban"></i></button>
-                    <h2>Lane ${key}</h2>
+                    <h2>Lane ${index}</h2>
                     <h2>${config === "Running..." ? "Running..." : formatElapsedTime(config)}</h2>
                 </div>
             `;
@@ -105,6 +125,7 @@ function formatElapsedTime(ms) {
 
 async function createDictionary(code) {
     const dictionaryRef = doc(db, "dictionaries", code);
+
     await setDoc(dictionaryRef, {
         ConnectedClients: 0,
         HostPipe: 0

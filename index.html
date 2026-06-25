@@ -16,10 +16,12 @@
                     <input type="text" id="userInput" placeholder="Join Code..." class="button-name"></input>
                     <button type="submit" class="button-name" role="button">Join</button>
                 </form>
+                <h4 class="MinorInfo"></h4>
             </div>
         </div>
     </div>
     <footer>Made With <3 from Ontario </footer>
+    <script type="module" src="index.js"></script>
 </body>
 
 <style>
@@ -59,7 +61,12 @@ h2, h3, button, input{
     border-radius: 15px;
     padding: 10px;
 }
-
+.MinorInfo{
+  font-size: smaller;
+  margin-top: -15px;
+  color:rgb(165, 19, 19);
+  font-weight: bold;
+}
 /* From Uiverse.io by TCdesign-dev */ 
 .button-name {
   align-items: center;
@@ -119,23 +126,3 @@ h2, h3, button, input{
 }
 
 </style>
-
-<script>
-function redirectToLink(event) {
-  event.preventDefault(); // Stop the form from submitting normally
-  
-  // Get the input value
-  const inputValue = document.getElementById('userInput').value;
-  
-  // Create the URL with the parameter
-  const targetUrl = "/join.html?id=" + inputValue;
-  
-  // Redirect the user
-  window.location.href = targetUrl;
-}
-function Host() {
-    code = Math.random().toString(36).substring(2, 8).padEnd(6, '0');
-    const targetUrl = "/host.html?id=" + code;
-    window.location.href = targetUrl;
-}
-</script>

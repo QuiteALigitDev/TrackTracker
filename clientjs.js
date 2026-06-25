@@ -44,14 +44,10 @@ onSnapshot(doc(db, "dictionaries", code.get("id")), (docSnap) =>{
         console.log("Document Updated.");
         var pipeCode = docSnap.data()['HostPipe'];
 
-        if (String(pipeCode).startsWith('1')){
-            var lane = LaneNum;
+        if (pipeCode === "KICK_" + LaneNum){
             LaneNum -= 1;
-            if (pipeCode == '1' + lane){
-                window.location.href = "index.html";
-                return;
-            }
-            updateTimes(curTime, 500);
+            window.location.href = "index.html";
+            return;
         }
         else if (pipeCode != '0'){
             isTiming = true;
@@ -70,6 +66,11 @@ function formatElapsedTime(ms) {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}:${String(milliseconds).padStart(3, '0')}`;
 }
 
+async function deleteKey(key){
+    await updateDoc(dictionaryRef, {
+        [key]: deleteField()
+    }); 
+}
 
 function ToggleClock(){
     isTiming = !isTiming;
@@ -104,7 +105,8 @@ async function addTimes() {
         LaneNum = docSnap.data().ConnectedClients;
     }
     await updateDoc(dictionaryRef, {
-        ConnectedClients: increment(1)
+        ConnectedClients: increment(1),
+        [LaneNum]: "Ready..."
     }); 
     console.log(`Joined "${code.get('id')}", Current Lane Num Is ${LaneNum}!`);
     laneReady = true;
